@@ -1,0 +1,22 @@
+.env
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+allure-results/
+allure-report/
+screenshots/
+*.log
+.DS_Store
+
+# harness template state
+.template.env
+.template.modules
+.claude/logs/
+
+# Local Claude Code MCP server config; may contain API tokens
+.mcp.json
+
+# Run artefacts: the xdist breadcrumb file is rewritten on every test run
+logs/

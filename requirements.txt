@@ -1,0 +1,41 @@
+# =============================================================================
+# requirements.txt — Legacy compatibility file
+# =============================================================================
+# SOURCE OF TRUTH: pyproject.toml (PEP 621)
+# This file exists for developers who prefer `pip install -r requirements.txt`.
+# CI/CD uses `pip install -e .` which reads pyproject.toml.
+#
+# To regenerate from pyproject.toml:
+#   uv pip compile pyproject.toml -o requirements.txt
+# =============================================================================
+
+# Core Testing Framework
+pytest==7.4.3
+pytest-xdist==3.5.0  # Parallel test execution
+pytest-timeout==2.2.0  # Test timeout management (@pytest.mark.timeout)
+pytest-check>=2.0  # Soft assertions for collecting all mismatches in one run
+
+# Data Validation & Management
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Database
+psycopg2-binary==2.9.9  # PostgreSQL adapter (src/storage/postgres_storage.py)
+
+# Distributed Coordination (campaign testing)
+
+# API & HTTP
+requests==2.31.0
+
+# Configuration
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# Reporting
+allure-pytest==2.15.3
+
+# Mobile Testing
+Appium-Python-Client==5.3.1
+
+# Self-Healing (optional — only needed when SELF_HEAL=true + ANTHROPIC_API_KEY set)
+anthropic>=0.40.0

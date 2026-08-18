@@ -1,0 +1,19 @@
+{
+  "default_device": "android_dev",
+  "appium_url": "http://localhost:4723",
+  "devices": {
+    "android_dev": {
+      "name": "Samsung Galaxy (Dev)",
+      "platformName": "Android",
+      "appium:automationName": "UiAutomator2",
+      "appium:udid": "ZA222TCMXL",
+      "appium:appPackage": "com.example.app",
+      "appium:appActivity": ".MainActivity",
+      "appium:autoGrantPermissions": true,
+      "appium:skipUnlock": true,
+      "appium:noReset": true,
+      "appium:fullReset": false,
+      "appium:newCommandTimeout": 3600
+    }
+  }
+}
