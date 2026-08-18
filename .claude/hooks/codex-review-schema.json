@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["priority", "title", "file", "line", "explanation"],
+        "properties": {
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "description": "0=P0 critical (blocks commit), 1=P1 important, 2=P2 minor, 3=P3 nit"
+          },
+          "title": { "type": "string" },
+          "file": { "type": "string" },
+          "line": { "type": "integer", "description": "line number, or 0 if not applicable" },
+          "explanation": { "type": "string" }
+        }
+      }
+    }
+  }
+}

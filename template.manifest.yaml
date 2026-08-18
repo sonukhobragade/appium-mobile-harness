@@ -1,0 +1,127 @@
+# template.manifest.yaml
+#
+# Declares (a) the placeholder variables init.sh substitutes and (b) the tier
+# of every templated file.
+#
+# Tiers:
+#   1 = universal   — copied verbatim into every project
+#   2 = templated   — copied with {{PLACEHOLDER}} substitution
+#   3 = opt-in      — under modules/, installed only when enabled
+
+version: 2
+
+# ---------------------------------------------------------------------------
+# Placeholders. init.sh prompts for each (or takes --set KEY=VALUE) and
+# substitutes {{KEY}} across every tier-2 file.
+# ---------------------------------------------------------------------------
+placeholders:
+  PROJECT_NAME:
+    prompt: "Project name"
+    default: ""
+  PROJECT_TAGLINE:
+    prompt: "One-line description (shown at the top of CLAUDE.md/AGENTS.md)"
+    default: ""
+  AGENT_NAME:
+    prompt: "Agent identity name for SOUL.md"
+    default: "Agent"
+  AGENT_DOMAIN:
+    prompt: "What the agent works on, e.g. 'on payment systems'"
+    default: "on this codebase"
+  AGENT_STAKES:
+    prompt: "What is actually at stake when this system is wrong (one sentence)"
+    default: "Correctness here is what users depend on."
+  STACK:
+    prompt: "Stack, e.g. 'Python 3.11, pytest (async)' or 'TypeScript, Vitest'"
+    default: ""
+  CORE_PATTERN:
+    prompt: "The project's core pattern, one line"
+    default: ""
+  ENDPOINT_REGISTRY:
+    prompt: "Path to the single-source-of-truth interface registry module"
+    default: "src/config/endpoints"
+  BUG_DOC_DIR:
+    prompt: "Directory holding defect docs"
+    default: "docs/bugs/"
+  TRACKER:
+    prompt: "External tracker name (or 'none')"
+    default: "none"
+  DEFAULT_BRANCH:
+    prompt: "Protected/default branch"
+    default: "main"
+  INSTALL_CMD:
+    prompt: "Install dependencies"
+    default: ""
+  TEST_CMD:
+    prompt: "Run the whole suite"
+    default: ""
+  TEST_SINGLE_CMD:
+    prompt: "Run a single test file"
+    default: ""
+  LINT_CMD:
+    prompt: "Lint"
+    default: ""
+  TYPECHECK_CMD:
+    prompt: "Type check (or 'true' if none)"
+    default: "true"
+  UNIT_TEST_CMD:
+    prompt: "Unit tests that need no external dependencies"
+    default: ""
+  COLLECT_CMD:
+    prompt: "Dry-run/collect-only smoke (or 'true' if none)"
+    default: "true"
+
+# ---------------------------------------------------------------------------
+# File tiers
+# ---------------------------------------------------------------------------
+files:
+  tier1:
+    # GRAPH_FIRST.md is NOT here — it ships with the code-review-graph module,
+    # so the rule and the MCP wiring always arrive together.
+    - .claude/hooks/scripts/edit-time-lint.py
+    - .claude/hooks/scripts/codex-precommit-review.py
+    - .claude/hooks/codex-review-schema.json
+    - .claude/agents/
+    - .claude/commands/git-operations/
+    - .claude/commands/code-quality/
+    - .claude/commands/workflow/
+
+  tier2:
+    - CLAUDE.md
+    - AGENTS.md
+    - GEMINI.md
+    - SOUL.md
+    - .claude/settings.json
+    # These carry placeholders, so they are templated, not verbatim. init.sh
+    # scans the whole tree for {{TOKENS}} rather than reading these lists, so a
+    # file listed under tier1 while containing a placeholder is a lie.
+    - .claude/rules/KARPATHY.md
+    - .claude/hooks/scripts/enforce-workflow.py
+    - .claude/hooks/scripts/guard-protected-branch.sh
+    - .claude/rules/VALIDATION_RULES.md
+    - .claude/rules/TESTING_STANDARD.md
+    - .claude/rules/CODEBASE_EXPLORATION.md
+    - .claude/rules/ERROR_CONTRACT_POLICY.md
+    - .claude/rules/BUG_TEST_LINKAGE.md
+    - .claude/skills/local-gate/SKILL.md
+    - .claude/hooks/scripts/session-start-reminder.py
+    - tools/local_gate.sh
+    - .cursorrules
+    - .windsurfrules
+    - .kiro/steering/project.md
+
+  tier3_modules:
+    qa-python:
+      description: "pytest/async patterns, oracle factories, CSV data-driven tests, money-path oracle lint"
+      default: false
+    notion-tracker:
+      description: "/bug-sync — mirror defect docs to a Notion database via the REST API"
+      default: false
+    code-review-graph:
+      description: "code-review-graph MCP wiring + the GRAPH_FIRST rule"
+      default: false
+    k8s-infra:
+      description: "cluster log access, port-forward preflight, live-env connectivity checks"
+      default: false
+    metrics-grafana:
+      description: "metrics DB schema, run ingest, dashboards, weekly digest"
+      default: false

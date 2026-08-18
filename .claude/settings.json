@@ -1,0 +1,73 @@
+{
+  "$comment": [
+    "Template hook wiring. init.sh keeps this file; project-local overrides",
+    "belong in settings.local.json (gitignored).",
+    "",
+    "NOTE on the `if` matcher: it matches on a SUBSTRING of the command, so",
+    "`if: \"Bash(git commit:*)\"` also fires on `cat .pre-commit-config.yaml`.",
+    "Every commit-scoped hook here therefore re-checks the real command inside",
+    "its own script before acting. Do not inline the branch check back here.",
+    "",
+    "NOTE on quoting: $CLAUDE_PROJECT_DIR is quoted because a checkout path",
+    "containing spaces would otherwise truncate the script path, making the",
+    "interpreter exit 2 — which PreToolUse reads as a BLOCK, turning a",
+    "fail-open hook into a blanket denial of edits and Bash calls."
+  ],
+  "enabledPlugins": {},
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/scripts/session-start-reminder.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/scripts/enforce-workflow.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking branch policy..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/scripts/guard-protected-branch.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking branch policy..."
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/scripts/codex-precommit-review.py\"",
+            "timeout": 600,
+            "statusMessage": "Independent review (blocks on P0)..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/scripts/edit-time-lint.py\"",
+            "timeout": 25,
+            "statusMessage": "Edit-time lint..."
+          }
+        ]
+      }
+    ]
+  }
+}

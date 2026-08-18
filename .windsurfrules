@@ -1,0 +1,27 @@
+# Windsurf rules — appium-mobile-harness
+
+The full contract lives in the shared files. Read them; this is a pointer, not a
+replacement.
+
+- **`CLAUDE.md`** — project facts, mandatory rules, workflow, rules index
+- **`AGENTS.md`** — review contract
+- **`SOUL.md`** — identity and values
+- **`.claude/rules/*.md`** — the enforceable rule set:
+  - `KARPATHY.md` — coding discipline (surface assumptions, simplicity, surgical
+    diffs, goal-driven)
+  - `VALIDATION_RULES.md` — assertion discipline, banned patterns, failure triage
+  - `TESTING_STANDARD.md` — ≥2 oracles, eventual consistency, isolation, coverage
+  - `CODEBASE_EXPLORATION.md` — 8-axis audit before any plan or coverage claim
+  - `ERROR_CONTRACT_POLICY.md` — frozen wrong-error contracts; when NOT to file
+  - `BUG_TEST_LINKAGE.md` — defect ↔ test traceability
+
+## Non-negotiables
+
+1. Never work on `main`. Branch from `origin/main`.
+2. Never weaken a check to make it pass. A failure is a discovery — document the
+   defect, don't soften the assertion.
+3. Ground every claim in source with a `file:line` citation. No conclusions from
+   memory, no plans from `git log --oneline`.
+4. Run `bash tools/local_gate.sh` before every commit.
+5. Every changed line traces to the stated task. No orthogonal "improvements".
+6. Verify before claiming done — run the command, read the output, then report.

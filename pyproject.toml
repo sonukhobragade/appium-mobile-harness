@@ -1,0 +1,169 @@
+[project]
+name = "app-mob-auto"
+version = "0.1.0"
+description = "Cross-platform Mobile Test Automation Framework for ExampleApp"
+authors = [
+    {name = "the app Team", email = "team@example.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "pytest>=7.4.0",
+    "pytest-xdist>=3.3.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-rerunfailures>=14.0",
+    "pytest-check>=2.0",
+    "pytest-ordering>=0.6",
+    "pytest-timeout>=2.2.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "pydantic[email]>=2.5.0",
+    "requests>=2.31.0",
+    "httpx>=0.27.0",
+    "psycopg2-binary>=2.9.0",
+    "redis>=5.0.0",
+    "kazoo>=2.10.0",
+    "allure-pytest>=2.15.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.7.0",
+    "typer>=0.9.0",
+    "appium-python-client>=5.0.0",
+    "selenium>=4.0.0",
+    "anthropic>=0.40.0",
+    "playwright>=1.40.0",
+    "pytest-playwright>=0.4.3",
+    "Pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.13.2",
+    "mypy>=1.7.0",
+    "pre-commit>=3.5.0",
+    "ipdb>=0.13.0",
+    "pytest-cov>=4.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by formatter
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = [
+    "--strict-markers",
+    "--alluredir=allure-results",
+    "--clean-alluredir",
+    "-v",
+    "--timeout=360",
+    "--timeout-method=thread",
+]
+markers = [
+    "unit: Unit tests - no device or network required",
+    "integration: Integration tests - exercise a real dependency",
+    "smoke: Smoke tests - critical functionality (quick validation)",
+    "sanity: Sanity tests - basic health check after deployment",
+    "regression: Regression tests - full test suite",
+    "android: Android platform specific tests",
+    "ios: iOS platform specific tests",
+    "api: API integration tests",
+    "slow: Slow running tests",
+    "e2e: End-to-end tests",
+    "performance: Performance tests - measure timing and resources",
+    "diagnostic: Diagnostic tests - troubleshooting and analysis",
+    "journey: User journey tests - complete user flows",
+    "run: Test execution order marker (from pytest-ordering)",
+    "order: Test execution order (from pytest-ordering)",
+    "new_user: Delete user account before test (for new user tests)",
+    "validate_and_delete: Validate balance + delete account after test (for add money/deduct coins tests)",
+    "validate_balances: Only validate balance, no deletion (for read-only balance checks)",
+    "flaky: mark test as potentially flaky (auto-retried)",
+    "serial: Tests that must run serially (shared state mutation, not parallel-safe)",
+    "needs_payment_apps: install GPay/PhonePe/Chrome on cloud device before test",
+    "timeout: Test with custom timeout setting",
+    "test_id: Test case ID for traceability",
+    "edge_case: Edge case tests - boundary conditions and unusual scenarios",
+    "web: Web automation tests (Playwright)",
+    "web_live: Live black-box website QA tests (no mocked JWT/OTP helpers)",
+    "payments: Payment flow tests (deposits, webhooks, subscriptions)",
+    "add_balance: Add deposit balance before test (new_user=True/False, amount=N, phone=str)",
+    "xdist_group: Group tests to run on same worker in pytest-xdist (--dist loadgroup)",
+    "campaign: Campaign navigation E2E tests (require DB_URI + REDIS_HOST + ZK_HOSTS)",
+    "quarantine: Tests with known structural flake (cashfree webview, etc.) — excluded from blocking CI via -m 'not quarantine'",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*", "*/test_*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "pytest-cov>=7.0.0",
+    "ruff==0.13.2",
+]
+
+# ============================================================================
+# basedpyright configuration
+# ============================================================================
+# Suppress false positives from Appium/Selenium type stubs
+# The type stubs expect tuple[str, str] but Appium uses tuple[AppiumBy, str]
+# This is correct at runtime - the enum converts to string automatically
+[tool.basedpyright]
+reportArgumentType = "none"              # AppiumBy vs str type mismatches
+reportReturnType = "none"                # Return type inconsistencies
+reportOptionalMemberAccess = "warning"   # None checks (keep as warning)
+reportPrivateImportUsage = "none"        # Private imports from appium.webdriver
+reportGeneralTypeIssues = "none"         # General type issues (callable checks)
