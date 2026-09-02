@@ -15,7 +15,7 @@ screenshots/
 .template.modules
 .claude/logs/
 
-# Local Claude Code MCP server config; may contain API tokens
+# Local editor/assistant config; may contain API tokens
 .mcp.json
 
 # Run artefacts: the xdist breadcrumb file is rewritten on every test run
