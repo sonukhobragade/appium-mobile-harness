@@ -544,6 +544,16 @@ def appium_server(request):
         yield
         return
 
+    # No Appium binary on PATH. Nothing below can manage a server, and the unit
+    # tests never open a session, so yield instead of failing: `pytest tests/unit`
+    # has to work on a clean checkout and on CI, neither of which installs Appium.
+    import shutil
+
+    if shutil.which("appium") is None:
+        logging.info("appium not on PATH — skipping local Appium server management")
+        yield
+        return
+
     # FIX: pytest-xdist safety - only controller manages server
     # Workers should just wait for the server to be ready
     if hasattr(request.config, "workerinput"):
