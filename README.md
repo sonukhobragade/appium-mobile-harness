@@ -4,7 +4,8 @@
 
 The reusable half of a production mobile automation suite: a substantial Page
 Object base class, Appium session management, a page-object generator that reads
-a live screen, storage clients for oracle checks, and Allure reporting.
+a live screen, backend API and database clients for oracle checks, and Allure
+reporting.
 
 It is scaffolding. The page objects and tests for *your* app are yours to write;
 this is everything underneath them.
@@ -19,24 +20,27 @@ flowchart TD
     subgraph harness [src/]
         PAGE[pages/base_page.py<br/>waits, retries, gestures, scroll-into-view]
         GEN[appium_utils/<br/>page-object generator, runner]
-        UTIL[utils/<br/>API + account helpers]
-        STORE[storage/<br/>DB clients for oracles]
+        UTIL[utils/<br/>backend API oracle, account helpers]
+        STORE[storage/<br/>app DB + run-result store]
     end
 
     APPIUM[Appium server]
     DEVICE[Device or emulator]
     DB[(App database)]
+    API[Backend API]
     ALLURE[Allure report<br/>screenshots on failure]
 
     CONF --> TEST --> PAGE --> APPIUM --> DEVICE
     GEN -.reads a live screen<br/>to scaffold page objects.-> PAGE
-    TEST --> STORE --> DB
-    DB -.second oracle.-> TEST
-    UTIL --> TEST
+    UTIL --> API
+    API -.expected values.-> TEST
+    STORE --> DB
+    DB -.independent oracle.-> TEST
+    TEST --> STORE
     PAGE --> ALLURE
 
     classDef ext fill:#eef,stroke:#88a
-    class APPIUM,DEVICE,DB,ALLURE ext
+    class APPIUM,DEVICE,DB,API,ALLURE ext
 ```
 
 ## `src/pages/base_page.py`
@@ -70,15 +74,36 @@ screen.
 
 ## Oracles
 
-`src/storage/` holds the PostgreSQL client used to persist run results.
+A mobile assertion is weak evidence on its own. A green screen means the app
+rendered something; it does not mean the purchase was recorded, the entitlement
+was granted, or the feature flag you are testing under is actually the one that
+was live. Assert the UI, then verify the effect from a source the app does not
+control.
 
-They are there because a mobile assertion is weak evidence on its own. A green
-screen means the app rendered something; it does not mean the purchase was
-recorded, the entitlement was granted, or the feature flag you are testing under
-is actually the one that was live. Assert the UI, then verify the effect from a
-source the app does not control.
+Two independent sources are wired in, and they are not the same thing:
 
-Use read-only credentials for all three.
+| Source | File | Used for |
+|---|---|---|
+| Backend API | `src/utils/api_fetcher.py` | Fetches current backend data before a run, so expected values track the backend instead of being hardcoded. Validates each response against a schema and falls back to a stored response when the API is down. |
+| App database | `src/storage/db.py` | Direct lookups for test setup and verification — user by phone, fixture injection. |
+
+Use read-only credentials for both.
+
+`src/storage/postgres_storage.py` is **not** an oracle. It persists run results
+for reporting, which is why its sibling `db.py` opens with "NOT for test result
+storage". Two PostgreSQL clients in one package, doing unrelated jobs.
+
+The API oracle needs a `config/` directory that is not in this repository,
+because its contents describe someone's specific backend:
+
+| Path | Holds |
+|---|---|
+| `config/api_endpoints.json` | The endpoints to fetch before a run |
+| `config/api_responses/<api>/schema.json` | `required_fields` and `required_deep_paths` |
+| `config/api_responses/<api>/known_fields.json` | Field-path tracking, for new-field detection |
+| `config/api_responses/<api>/response.json` | Fallback used when the API is unreachable |
+
+`api_fetcher.py` documents the full shape at the top of the file.
 
 ## Reporting
 
