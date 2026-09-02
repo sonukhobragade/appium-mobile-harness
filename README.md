@@ -60,7 +60,7 @@ the current screen's element tree and emit a starting page object into
 `src/pages/`, with locators already filled in.
 
 ```bash
-python -m src.appium_utils.page_object_generator settings --output src/pages
+python -m src.appium_utils.page_object_generator --screen settings --output src/pages
 ```
 
 It is a starting point, not a finished object. Generated locators lean on
@@ -103,6 +103,25 @@ pytest --platform android
 
 The harness deliberately ships no page objects for a real app and no test data,
 since those are the parts specific to a product.
+
+### `src/platform/` — the device layer
+
+The session-management and generator paths import a `src.platform` package that
+is not in this repository, because it encodes device-farm and OEM specifics that
+do not generalise. You supply it. Three modules, and what is imported from each:
+
+| Module | Must expose |
+|---|---|
+| `src/platform/driver_factory.py` | `DriverFactory` — builds a configured Appium driver |
+| `src/platform/appium_client.py` | `AppiumClient`, `SessionInfraError`, `keep_session_alive` |
+| `src/platform/oem_policy.py` | `OEM_POLICIES` — per-manufacturer quirks |
+
+`base_page.py` imports `OEM_POLICIES` inside the method that needs it, so most
+of the base class works without the package. `src/appium_utils/runner.py`
+imports at module level and will not load without it. The unit tests do not
+touch these paths, which is why the gate passes on a clean clone.
+
+### `src/utils/transforms` — expected screen text
 
 The `expected_screens` fixture in `conftest.py` expects a
 `src/utils/transforms` module exposing `get_all_expected(backend_data)`, which
