@@ -10,6 +10,22 @@ reporting.
 It is scaffolding. The page objects and tests for *your* app are yours to write;
 this is everything underneath them.
 
+## The problem it addresses
+
+Mobile tests fail for environmental reasons far more often than because the app
+is broken. A stale driver session, a permission dialog nobody expected, an
+element that exists but has not finished animating, a device that rebooted
+between runs — each one produces a red build that says nothing about the
+product.
+
+A suite that is red for those reasons stops being read. People rerun it until
+it goes green, and by then it has stopped being a test of anything.
+
+This is the layer that absorbs that: waits that express intent rather than
+sleeping, lookups that retry the way a human would and fail naming what they
+looked for, and two independent oracles so a green screen is not the only
+evidence a purchase was recorded.
+
 ## How a run is wired
 
 ```mermaid
@@ -53,9 +69,8 @@ way a human would and fail with a message naming what was being looked for.
 Scroll-into-view that works on both platforms. Gesture helpers. Screenshot
 capture on failure, attached to the report automatically.
 
-Mobile tests fail for environmental reasons far more often than because the app
-is broken. Most of this file is the difference between a suite people trust and
-one they rerun until it goes green.
+Most of this file is the difference between a suite people trust and one they
+rerun until it goes green.
 
 ## Page object generation
 
