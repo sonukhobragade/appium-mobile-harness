@@ -1,0 +1,10 @@
+[
+  "0.id",
+  "0.name",
+  "0.price",
+  "0.currency",
+  "0.billing_period",
+  "0.features",
+  "0.limits.max_devices",
+  "0.limits.max_storage_gb"
+]

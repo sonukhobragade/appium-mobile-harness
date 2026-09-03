@@ -1,0 +1,14 @@
+{
+  "required_fields": [
+    "id",
+    "name",
+    "price",
+    "currency",
+    "billing_period"
+  ],
+
+  "required_deep_paths": [
+    "0.features",
+    "0.limits.max_devices"
+  ]
+}

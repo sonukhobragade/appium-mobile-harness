@@ -1,0 +1,37 @@
+{
+  "base_url_env": "API_BASE",
+
+  "auth": {
+    "type": "bearer",
+    "token_env": "API_TOKEN",
+    "token_header": "auth_token",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }
+  },
+
+  "endpoints": {
+    "subscription_plans": {
+      "path": "/api/v1/subscriptions/plans",
+      "method": "GET",
+      "response_key": "data"
+    },
+
+    "user_profile": {
+      "path": "/api/v1/users/{user_id}",
+      "method": "GET",
+      "path_params": { "user_id": "USER_ID" },
+      "response_key": "data"
+    },
+
+    "place_order": {
+      "path": "/api/v1/orders",
+      "method": "POST",
+      "body": { "plan_id": null, "quantity": 1 },
+      "body_params": { "plan_id": "PLAN_ID" },
+      "extra_headers": { "X-Client": "automation" },
+      "response_key": "data"
+    }
+  }
+}

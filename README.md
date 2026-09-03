@@ -121,6 +121,9 @@ class SubscriptionPage(BasePage):
 No waits, no retries, no `sleep`. If those appear in a page object, something
 belongs in the base class instead.
 
+The same thing as a file, with comments on the choices:
+[`src/pages/example_subscription_page.py`](src/pages/example_subscription_page.py).
+
 ## Writing a test
 
 The plain version asserts against a literal:
@@ -184,7 +187,13 @@ for reporting, which is why its sibling `db.py` opens with "NOT for test result
 storage". Two PostgreSQL clients in one package, doing unrelated jobs.
 
 The API oracle needs a `config/` directory that is not in this repository,
-because its contents describe someone's specific backend:
+because its contents describe someone's specific backend. A working example of
+every file, with the shapes the code actually expects, is in
+[`config.example/`](config.example) — copy it and replace the contents:
+
+```bash
+cp -r config.example config
+```
 
 | Path | Holds |
 |---|---|
@@ -240,7 +249,9 @@ touch these paths, which is why the gate passes on a clean clone.
 
 The `expected_screens` fixture in `conftest.py` expects a
 `src/utils/transforms` module exposing `get_all_expected(backend_data)`, which
-turns your backend payloads into the text each screen should display. Without it
+turns your backend payloads into the text each screen should display. There is
+a worked example at
+[`config.example/transforms_example.py`](config.example/transforms_example.py). Without it
 that fixture skips rather than failing, so everything else still runs.
 
 That pattern is worth keeping if you adopt this: driving expected UI text from
