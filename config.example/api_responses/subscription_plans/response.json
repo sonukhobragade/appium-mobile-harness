@@ -1,0 +1,20 @@
+[
+  {
+    "id": "plan_basic",
+    "name": "Basic",
+    "price": "199",
+    "currency": "INR",
+    "billing_period": "monthly",
+    "features": ["1 device", "Standard support"],
+    "limits": { "max_devices": 1, "max_storage_gb": 5 }
+  },
+  {
+    "id": "plan_pro",
+    "name": "Pro",
+    "price": "499",
+    "currency": "INR",
+    "billing_period": "monthly",
+    "features": ["3 devices", "Priority support", "Offline mode"],
+    "limits": { "max_devices": 3, "max_storage_gb": 50 }
+  }
+]
