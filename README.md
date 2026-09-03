@@ -72,6 +72,81 @@ capture on failure, attached to the report automatically.
 Most of this file is the difference between a suite people trust and one they
 rerun until it goes green.
 
+### Locators resolve per platform, once
+
+Android and iOS disagree about how to find the same element. The base class
+settles that in one place so page objects do not repeat it:
+
+```python
+def _by_id(self, rid: str) -> tuple:
+    """testID prop lookup, fastest on both platforms."""
+    if self.platform == "android":
+        return (AppiumBy.ANDROID_UIAUTOMATOR,
+                f'new UiSelector().resourceId("{rid}")')
+    return (AppiumBy.ACCESSIBILITY_ID, rid)
+```
+
+The full set: `_by_id`, `_by_id_contains`, `_by_desc`, `_by_desc_contains`,
+`_by_text`, `_by_text_contains`, `_by_class`, `_by_predicate`,
+`_by_class_chain`.
+
+`find_element` waits for *visibility*, not presence. An element that exists but
+has not finished animating is the most common source of a red build that means
+nothing.
+
+## Writing a page object
+
+Page objects stay thin. They name locators and expose intent; the base class
+handles waiting, retrying and scrolling.
+
+```python
+from src.pages.base_page import BasePage
+
+
+class SubscriptionPage(BasePage):
+    PLAN_PRICE   = "subscription_plan_price"
+    PLAN_NAME    = "subscription_plan_name"
+    SUBSCRIBE_BTN = "subscription_subscribe_button"
+
+    def plan_price(self) -> str:
+        return self.find_element(*self._by_id(self.PLAN_PRICE)).text
+
+    def plan_name(self) -> str:
+        return self.find_element(*self._by_id(self.PLAN_NAME)).text
+
+    def subscribe(self) -> None:
+        self.find_element(*self._by_id(self.SUBSCRIBE_BTN)).click()
+```
+
+No waits, no retries, no `sleep`. If those appear in a page object, something
+belongs in the base class instead.
+
+## Writing a test
+
+The plain version asserts against a literal:
+
+```python
+def test_subscription_price(subscription_page):
+    assert subscription_page.plan_price() == "499"
+```
+
+That confirms the screen shows 499. It has no opinion on whether 499 is what
+the backend currently sells that plan for, and it goes red the day pricing
+changes for reasons that have nothing to do with the app.
+
+The oracle version asks for `expected_screens` and asserts agreement between
+two systems:
+
+```python
+def test_subscription_price(subscription_page, expected_screens):
+    expected = expected_screens["subscription"]["price"]
+    assert subscription_page.plan_price() == expected
+```
+
+`expected_screens` is not autouse. Tests that do not want a backend dependency
+never acquire one, and if the transforms module is absent the fixture skips
+rather than failing the run.
+
 ## Page object generation
 
 `src/appium_utils/page_object_generator.py` and its cross-platform sibling read
